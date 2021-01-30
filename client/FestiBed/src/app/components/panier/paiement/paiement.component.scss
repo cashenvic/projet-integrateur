@@ -1,0 +1,68 @@
+.card-wrapper{
+    margin-top: 3rem!important;
+}
+
+fieldset{
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.form-container {
+    width: 350px;
+    //margin: auto;
+    margin: 3rem auto;
+}
+
+.slds-form_compound .slds-form-element {
+    width: 100%;
+    position: relative;
+}
+
+.slds-form_compound .slds-form-element__row {
+    display: flex;
+    margin-bottom: .5rem;
+}
+
+.slds-input, .slds-button {
+    border-radius: 0;
+}
+.slds-input {
+    background-color: #fff;
+    border: 1px solid #d8dde6;
+    border-radius: .25rem;
+    width: 100%;
+    transition: border .1s linear,background-color .1s linear;
+    display: inline-block;
+    padding: 0 1rem 0 .75rem;
+    line-height: 3rem;
+    outline: none;
+    min-height: calc(3rem + (1px * 2));
+}
+
+.slds-form_compound .slds-form-element__row+.slds-form-element__row {
+    clear: both;
+}
+
+.slds-form_compound .slds-form-element__row {
+    display: flex;
+    margin-bottom: .5rem;
+}
+
+.slds-size--1-of-2, .slds-size_1-of-2 {
+    width: 50%;
+}
+
+.row1{
+    border-radius :0.25rem 0 0 0.25rem;
+}
+
+.row2{
+    border-radius : 0 0.25rem 0.25rem 0;
+
+}
+
+form{
+    margin-left: -27px;
+    margin-bottom: 1rem;
+}

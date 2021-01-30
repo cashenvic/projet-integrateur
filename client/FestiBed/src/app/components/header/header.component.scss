@@ -1,0 +1,83 @@
+@import "~src/vars";
+
+.toolbar{
+    height: $height-menu-lg;
+    padding-left: 2rem;
+    padding-right: 5px;
+    background-color: $primary;
+    color: $black;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
+
+.toolbar img {
+    margin: 0 16px;
+}
+
+.item{
+    &__title{
+        color: $black;
+        padding-left: 8px;
+        font-weight: bold;
+        font-size: 13px;
+        line-height: 16px;
+    }
+}
+
+a{
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+    place-content: center space-around;
+    align-items: center;
+}
+
+a:not(:last-child) {
+    padding-right: 1rem;
+}
+
+.vl{
+    height: 40px;
+    border: 0.5px solid $white;
+    box-sizing: border-box;
+    margin: 0 5px;
+}
+
+.toolbar button{
+    height: 40px;
+    padding: 0 5px;
+}
+
+.toolbar button:hover{
+    height: 40px;
+    background-color: $light-color;
+}
+
+.toolbar button a{
+    height: 40px;
+}
+
+.mat-badge-medium.mat-badge-overlap.mat-badge-after .mat-badge-content {
+    right: -10px;
+    top: -20px;
+    background: #26418f;
+}
+
+.cookie{
+    margin: 0.5rem 2rem;
+    font-size : 12px;
+}
+
+.mat-icon{
+    color: $black;
+}
+
+.mat-icon-button{
+    background-color: $light-grey;
+}
+
+.mat-icon-button:hover{
+    background-color: $grey;
+}

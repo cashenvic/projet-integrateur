@@ -1,0 +1,134 @@
+<div >
+  <!--LOCATION BACK-->
+  <p class="btn-back">
+    <a href="festivals">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <span>Revenir à la liste des festivals</span>
+  </p>
+
+  <!--TITLE-->
+  <h1 class="title-single"> {{festival.nom}}</h1>
+
+  <div class="photos">
+    <drag-scroll #nav>
+      <div drag-scroll-item class="photos__item">
+        <img src="https://image.freepik.com/photos-gratuite/lumieres-bleues-disco_106386-97.jpg">
+      </div>
+     </drag-scroll>
+  </div>
+
+  <div class="drag-btn">
+    <button mat-button (click)="moveLeft()" class="prev"><i class="fas fa-chevron-left"></i></button>
+    <button mat-button (click)="moveRight()" class="next"><i class="fas fa-chevron-right"></i></button>
+  </div>
+
+  <div class="grid">
+    <div class="infos">
+      <!--INFO-->
+      <mat-card>
+        <mat-card-title>
+          <span>Informations</span>
+        </mat-card-title>
+
+        <mat-card-content>
+          <!--INFO-->
+          <div class="info">
+             <!-- <div class="genre" *ngIf="festival.domaines">
+                <ul>
+                  <li *ngFor="let categorie of festival.domaines">
+                    <a >{{categorie}}</a>
+                  </li>
+                </ul>
+              </div>-->
+
+              <p class="status-label light-white">
+                <span>Date de Début : {{ festival.date_debut | date : 'd MMMM y' }} </span>
+              </p>
+
+              <p class="status-label light-white">
+                <span>Date de Fin : {{ festival.date_fin | date : 'd MMMM y' }} </span>
+              </p>
+
+              <p class="status-label light-white">
+                <span>Site web : <a [href]="festival.site_web">{{festival.site_web}}</a> </span>
+              </p>
+
+              <p class="status-label light-white">
+                <i>Mise en ligne le {{festival.date_creation | date : 'd MMMM y'}}</i>
+              </p>
+          </div>
+        </mat-card-content>
+
+      </mat-card>
+
+      <div class="map">
+        <!--MAP-->
+        <app-map [markerFest]="configMap" *ngIf="!init"></app-map>
+      </div>
+    </div>
+
+    <div class="description">
+      <!--DESCRIPTION-->
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Description
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="synopsis">
+            <p class="content-synopsis"> {{festival?.description}}</p>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+       <!--PAS SOIREES-->
+      <div class="soiree" *ngIf="!soirees || soirees.length === 0">
+        ...
+      </div>
+
+       <!--SOIREES-->
+       <div class="soiree" *ngIf="soirees">
+        <div fxLayout="row" fxLayoutAlign="space-between start" *ngFor="let soiree of soirees">
+          <article class="product__item">
+            <!--PHOTO-->
+            <div class="product-photo__item">
+              <div class="product-photoLink__item" data-cc-theme="background:color[after];color:text-btn[after];color:text-btn[before];">
+                <img class="product-photoLogo" src="https://image.freepik.com/free-vector/elegant-event-poster-with-black-splash_1361-2193.jpg" alt="festival">
+              </div>
+            </div>
+
+            <div class="product-description__content">
+              <h1 class="product-title__item">Soirée {{festival.nom}} le {{soiree.date_soiree | date : 'd MMMM y'}}</h1>
+              <span class="product-description__place"> {{soiree.nbr_places_total}} place(s) restante(s)</span>
+            </div>
+
+          </article>
+
+          <button mat-button class="price__item" *ngIf="soiree.nb_categorie >= 1" matTooltip="Ajouter au panier" (click)="addCS(soiree, 0)" >
+            <p><i class="fas fa-shopping-basket"></i></p>
+            <p class="price__categ" *ngIf="soiree.nb_categorie === 2">Catégorie 1</p>
+            <p><span class="price__tarif">{{soiree.cs[0].tarif | number : '1.2-2' }} €</span></p>
+          </button>
+
+          <button mat-button class="price__item" *ngIf="soiree.nb_categorie === 2" matTooltip="Ajouter au panier" (click)="addCS(soiree, 1)">
+            <p ><i class="fas fa-shopping-basket"></i></p>
+            <p class="price__categ" *ngIf="soiree.nb_categorie === 2">Catégorie 2</p>
+            <p *ngIf="soiree.nb_categorie === 2"><span class="price__tarif">{{soiree.cs[1].tarif | number : '1.2-2' }} €</span></p>
+            <p *ngIf="soiree.nb_categorie === 1"><i class="fas fa-minus"></i></p>
+          </button>
+
+          <button *ngIf="soiree.nb_categorie === 1" mat-button class="price__item" matTooltip="Non disponible" [disabled]="true">
+            <p>
+              <i class="fas fa-minus"></i>
+            </p>
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,108 @@
+<div fxLayout="column" fxLayoutAlign="space-between">
+  <div class="checkout-info">
+    <header>
+      <span class="checkout-info__main-title">Vos Produits</span>
+    </header>
+
+    <div class="results" *ngIf="commande.listFestival.length > 0|| commande.listHebergement.length > 0">
+      <span>{{ commande.listFestival.length + commande.listHebergement.length }} produits</span>
+    </div>
+
+    <div class="error-banner" *ngIf="showError">
+      <div class="alert alert-danger" role="alert">
+        <div *ngFor="let prod of formErrorText">
+          <p>{{prod}}</p> 
+        </div>
+        <button type="button" (click)="closeAlert()" class="close" data-dismiss="alert" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="commande.listFestival">
+
+      <div *ngFor="let product of commande.listFestival" fxLayout="column" fxLayoutAlign="space-around stretch">
+        <!--SOIREES-->
+        <div class="soiree">
+          <div fxLayout="row" fxLayoutAlign="space-between start">
+            <div class="product__item">
+              <a href="festival/{{product.id_festival}}">
+                <!--PHOTO-->
+                <div class="product-photo__item">
+                  <div class="product-photoLink__item" data-cc-theme="background:color[after];color:text-btn[after];color:text-btn[before];">
+                    <img class="product-photoLogo" src="https://image.freepik.com/free-vector/elegant-event-poster-with-black-splash_1361-2193.jpg" alt="festival">
+                  </div>
+                </div>
+              </a>
+
+              <div class="product-description__content">
+                <a href="festival/{{product.id_festival}}">
+                  <h1 class="product-title__item">Soirée {{product.nom}} le {{product.date_soiree | date : 'd MMMM y'}}</h1>
+                </a>
+                <span class="product-description__place">{{product.nbr_places}} place(s) reservé(s)</span>
+                <button mat-button class="edit"><i class="fas fa-edit"></i></button>
+              </div>
+            </div>
+
+            <button mat-button class="price__item">
+              <p (click)="remove(product)"><i class="fas fa-trash-alt"></i></p>
+              <p class="price__categ" *ngIf="product.categorie !== 0">Catégorie {{product.categorie}}</p>
+              <p><span class="price__tarif">{{product.montant | number : '1.2-2' }} €</span></p>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="commande.listHebergement">
+
+      <div *ngFor="let product of commande.listHebergement" fxLayout="column" fxLayoutAlign="space-around stretch">
+        <!--SOIREES-->
+        <div class="soiree">
+          <div fxLayout="row" fxLayoutAlign="space-between start">
+            <div class="product__item">
+              <a href="hebergement/{{product.logementid}}">
+                <!--PHOTO-->
+                <div class="product-photo__item">
+                  <div class="product-photoLink__item" data-cc-theme="background:color[after];color:text-btn[after];color:text-btn[before];">
+                    <img class="product-photoLogo" src="https://image.freepik.com/photos-gratuite/conception-appartement-studio-moderne-chambre-espace-vie_1262-12375.jpg" alt="Beb">
+                  </div>
+                </div>
+              </a>
+
+              <div class="product-description__content">
+                <a href="hebergement/{{product.logementid}}">
+                  <h1 class="product-title__item">Logement {{product.nom}} </h1>
+                </a>
+                <p class="product-description__place">Du {{product.dateArrivee | date : 'd MMMM y'}}</p>
+                <p class="product-description__place">Au {{product.dateDepart | date : 'd MMMM y'}}</p>
+                <p class="product-description__place">{{product.nbrAdulte}} place(s) reservé(s)</p>
+                <button mat-button class="edit"><i class="fas fa-edit"></i></button>
+              </div>
+            </div>
+
+            <button mat-button class="price__item">
+              <p (click)="remove(product)"><i class="fas fa-trash-alt"></i></p>
+              <p><span class="price__tarif">{{product.montant | number : '1.2-2' }} €</span></p>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!--NO ARTICLES-->
+    <div class="articles-grid-items no-product" *ngIf="commande.listHebergement.length == 0 && commande.listFestival.length == 0 ">
+      <span>Aucun article a été selectionné.</span>
+    </div>
+
+  </div>
+
+  <div class="stepper-submit" fxLayout="row" fxLayoutGap="20px">
+    <button mat-button [routerLink]="['/home']">Retourner à l'accueil</button>
+    <button mat-button (click)="next()" >SUIV.</button>
+  </div>
+</div>

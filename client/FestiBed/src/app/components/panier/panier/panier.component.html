@@ -1,0 +1,112 @@
+<div class="cart">
+
+  <!--HEADER STEP MOBILE-->
+  <div *ngIf="isStateMobile" class="step-header">
+    <!--HEADER-->
+    <div [ngSwitch]="step">
+      <div *ngSwitchCase="1">
+        <div fxFlex fxLayout fxLayoutAlign="center center">
+          <span class="step-header--title">Les articles</span>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="2">
+        <button mat-button (click)="step = step - 1">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <div fxFlex fxLayout fxLayoutAlign="center center">
+          <span class="step-header--title margin-left-back">Paiement</span>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="3">
+        <div fxFlex fxLayout fxLayoutAlign="center center">
+          <span class="step-header--title margin-left-back">Finaliser</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div fxLayout="row" fxLayoutAlign="space-between start">
+    <!--ASIDE-->
+    <div *ngIf="!isStateMobile" class="sidebar">
+
+        <!--CONTENT-->
+        <div class="sidebar__content" fxLayout="column" fxLayoutAlign="space-between stretch">
+    
+            <div class="sidebar__content__title">
+                <span>Votre Panier</span>
+            </div>
+    
+            <!--STEPPER PC-->
+            <mat-vertical-stepper #stepper>
+                <mat-step completed="false" label="Vos Produits">
+                <div class="step">
+                    <span>Votre panier contient
+                    <span *ngIf="commande.listFestival.length === 0 && commande.listFestival.length === 0">0 produit
+                    </span>
+
+                    <span *ngIf="commande.listFestival.length > 0 ">{{commande.listFestival.length}} festival(s)
+                    </span>
+        
+                    <span *ngIf="commande.listHebergement.length > 0 && commande.listFestival.length > 0"> et </span>
+        
+                    <span *ngIf="commande.listHebergement.length > 0">{{commande.listHebergement.length}} hébergement(s)</span>
+                    </span>
+                </div>
+                </mat-step>
+        
+                <mat-step completed="false" label="Paiement">
+                </mat-step>
+    
+                <mat-step completed="false" label="Finalisation">
+            </mat-step>
+        
+            </mat-vertical-stepper>
+        
+        </div>
+    
+        <!--PRIX ORDER-->
+        <table class="sidebar__order-total">
+        <tbody>
+            <tr>
+            <th><span>Valeur de la commande&nbsp;:</span></th>
+            <td><span id="newPriceSubtotal">{{commande.totalPanier | number : '1.2-2' }} €</span></td>
+            </tr>
+            <tr>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="total">
+            <th><span>Total&nbsp;:</span></th>
+            <td>{{commande.totalPanier | number : '1.2-2'}} €</td>
+            </tr>
+        </tfoot>
+        </table>
+    </div>
+
+    <!--CONTENT RIGHT-->
+    <div class="container-cart" >
+        <div [ngSwitch]="step" [ngClass]="{'child': isStateMobile === true}">
+    
+        <div *ngSwitchCase="1">
+            <app-reservations [isStateMobile]="isStateMobile"
+                            (nextStep2)="toStep2($event)" (previous)="previousStepper()">
+            </app-reservations>
+        </div>
+    
+        <div *ngSwitchCase="2">
+            <app-paiement [isStateMobile]="isStateMobile" (nextStep3)="finaliserCommande($event)" (previous)="previousStepper()"></app-paiement>
+        </div>
+    
+        <div *ngSwitchCase="3">
+          <app-facture></app-facture>
+        </div>
+
+        </div>
+    </div>
+  </div>
+
+</div>
+  

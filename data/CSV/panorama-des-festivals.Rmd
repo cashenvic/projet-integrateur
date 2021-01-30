@@ -1,0 +1,516 @@
+---
+title: "Panorama des festivals"
+author: "G7 "
+#date: '`r Sys.Date()`'
+date : 13-01-2020
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    number_sections: yes
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error= TRUE)
+```
+
+
+## Load des modules
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+if(!require("tidyverse")) install.packages("tidyverse")
+library(conflicted)
+
+library(tidyverse)
+library(lubridate) #minpulation de date
+
+###OpenStreetMap
+if(!require("units")) install.packages("units")
+if(!require("raster")) install.packages("raster")
+
+library(raster)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  fig.width = 6,
+  fig.asp = 0.618,
+  out.width = "80%",
+  fig.align = "center"
+)
+
+# including SQLite itself
+#install.packages("sqldf")
+
+# load sqldf into workspace
+library(sqldf)
+
+```
+
+## Load des données
+``` {r}
+festivals <- read.csv("panorama-des-festivals.csv", header=TRUE, sep = ";")
+festivals_limit_rows <- dplyr::select(festivals, "Nom.de.la.manifestation","Domaine","Complément.domaine", "Site.web","Date.de.début","Date.de.fin","coordonnees_insee","Code.postal","Nom.Département","Commentaires")
+
+#convertire une colonne en date
+festivals_limit_rows %>%
+  mutate(Date.de.début=ymd(Date.de.début)+years(1) ) %>% #+ &jout de 2 ans
+  mutate(Date.de.fin=ymd(Date.de.fin)+years(1) ) %>% #+ &jout de 2 ans
+  head()
+```
+
+## Nombre de lignes
+
+``` {r}
+nrow(festivals_limit_rows)
+```
+
+## teste si une varaible est de type Date et GPS non vide
+``` {r}
+# Ne pas garder les valeur sans date de début et de fin de festival
+festivals_limit_rows <- festivals_limit_rows[-which(is.na(as.Date(festivals_limit_rows$Date.de.début))),]
+festivals_limit_rows <- festivals_limit_rows[-which(is.na(as.Date(festivals_limit_rows$Date.de.fin))),]
+#sapply(festivals_limit_rows$Date.de.début, function(x) !all(is.na(as.Date(as.character(x),format="%Y-%m-%d"))))
+
+#festivals_limit_rows <- festivals_limit_rows[-which(festivals_limit_rows$Date.de.début == ""),]
+#festivals_limit_rows <- festivals_limit_rows[-which(festivals_limit_rows$coordonnees_insee == ""),]
+
+#Test si bien une DATE
+#retirer les lignes sans coordonnées GPS
+festivals_limit_rows <- festivals_limit_rows[-which(festivals_limit_rows$coordonnees_insee == ""),]
+festivals_limit_rows <- festivals_limit_rows[-which(festivals_limit_rows$Complément.domaine == ""),]
+```
+
+## Nombre de lignes
+
+``` {r}
+nrow(festivals_limit_rows)
+```
+
+``` {r , echo=FALSE}
+colnames(festivals_limit_rows)
+```
+
+## Nombre de lignes
+
+``` {r}
+nbr_rows <- nrow(festivals_limit_rows)
+```
+
+## Gébération de donnnées
+
+### clé primaire et autre données
+
+``` {r}
+id_festival_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  id_festival_gen[i] <- i
+}
+id_festival_gen %>% head()
+
+tarif_cat1_jour_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  tarif_cat1_jour_gen[i] <- runif(1, 25.0, 100.0)
+}
+tarif_cat1_jour_gen %>% head()
+
+tarif_cat2_jour_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  tarif_cat2_jour_gen[i] <- runif(1, 10.0, 20.0)
+}
+tarif_cat2_jour_gen %>% head()
+
+tarif_sans_cat_jour_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  tarif_sans_cat_jour_gen[i] <- runif(1, 3.0, 8.0)
+}
+tarif_sans_cat_jour_gen %>% head()
+
+note_global_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  note_global_gen[i] <- sample(1:100, 1, replace=TRUE)
+}
+note_global_gen %>% head()
+
+nbr_place_cat1_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  nbr_place_cat1_gen[i] <- sample(50:300, 1, replace=TRUE)
+}
+nbr_place_cat1_gen %>% head()
+
+nbr_place_cat2_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  nbr_place_cat2_gen[i] <- sample(100:500, 1, replace=TRUE)
+}
+nbr_place_cat2_gen %>% head()
+
+nbr_place_san_cat_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  nbr_place_san_cat_gen[i] <- sample(100:1000, 1, replace=TRUE)
+}
+nbr_place_san_cat_gen %>% head()
+
+gen_date_creation <- seq(as.Date("2020/01/04"), by = "day", length.out = nbr_rows)
+
+gen_date_creation %>% head()
+```
+
+# Génaration des données pour LOCALISATION
+``` {r}
+data_localisations <- dplyr::select(festivals_limit_rows, "coordonnees_insee","Code.postal","Nom.Département")
+
+data_localisations %>%
+  separate("coordonnees_insee", c("LATITUDE", "LONGITUDE"), ",") %>%
+  rename(
+   CODE_POSTAL = Code.postal,
+   NOM_DEPARTEMENT = Nom.Département
+   ) %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/localisation.csv", row.names=FALSE)
+
+export_localisation <- read.csv("/home/mehdi/other_project/front/data/CSV/export/localisation.csv", header=TRUE, sep = ",")
+
+export_localisation <- dplyr::select(export_localisation, LATITUDE, LONGITUDE, CODE_POSTAL, NOM_DEPARTEMENT) %>%
+                    write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/localisation.csv", row.names=FALSE)
+
+export_localisation <- read.csv("/home/mehdi/other_project/front/data/CSV/export/localisation.csv", header=TRUE, sep = ",")
+
+export_localisation %>%
+  group_by(LATITUDE, LONGITUDE) %>% 
+  slice(1) %>% 
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/localisation.csv", row.names=FALSE)
+
+data_localisations <- read.csv("/home/mehdi/other_project/front/data/CSV/export/localisation.csv", header=TRUE, sep = ",")
+
+head(data_localisations)
+```
+
+# Génaration des données pour DOMAINE
+``` {r}
+data_domaine <- dplyr::select(festivals_limit_rows, Domaine)
+
+data_domaine %>%
+  group_by(Domaine) %>% 
+  slice(1) %>% 
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine.csv", row.names=FALSE)
+
+data_domaine <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine.csv", header=TRUE, sep = ",")
+
+nbr_rows_domaines <- nrow(data_domaine)
+
+ID_DOMAINE_gen <- c(1:nbr_rows_domaines)
+for(i in 1:nbr_rows_domaines){
+  ID_DOMAINE_gen[i] <- i
+}
+
+data_domaine %>%
+  mutate(ID_DOMAINE = ID_DOMAINE_gen ) %>%
+  rename( NOM = Domaine )%>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine.csv", row.names=FALSE)
+
+export_domaine <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine.csv", header=TRUE, sep = ",")
+
+data_domaine <- dplyr::select(export_domaine, ID_DOMAINE, NOM )%>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine.csv", row.names=FALSE)
+
+export_domaine <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine.csv", header=TRUE, sep = ",")
+
+head(export_domaine)
+```
+
+# Génaration des données pour DOMAINE COMPLEMENTAIRE
+``` {r, include=TRUE}
+data_domaine_c <- dplyr::select(festivals_limit_rows, Domaine, Complément.domaine)
+
+data_domaine_c %>%
+  group_by(Complément.domaine, Domaine) %>% 
+  slice(1) %>% 
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", row.names=FALSE)
+
+data_domaine_c <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", header=TRUE, sep = ",")
+
+nbr_rows_domaines_c <- nrow(data_domaine_c)
+
+ID_DOMAINE_gen_c <- c(1:nbr_rows_domaines_c)
+for(i in 1:nbr_rows_domaines_c){
+  ID_DOMAINE_gen_c[i] <- i
+}
+
+data_domaine_c %>%
+  mutate(ID_DOMAINE_C = ID_DOMAINE_gen_c ) %>%
+  rename( NOM = "Complément.domaine" )%>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", row.names=FALSE)
+
+export_domaine_c <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", header=TRUE, sep = ",")
+
+head(export_domaine_c)
+```
+
+``` {r}
+getID_DOMAINE <- function(x){
+  value_ID_DOMAINE <- sqldf(paste0("SElECT export_domaine.ID_DOMAINE FROM export_domaine INNER JOIN export_domaine_c ON export_domaine.NOM = export_domaine_c.DOMAINE where export_domaine_c.NOM = '",export_domaine_c[x, "NOM"], "' GROUP BY export_domaine_c.NOM"))
+  value_ID_DOMAINE[1, "ID_DOMAINE"]
+}
+
+nbr_rows_domaines_c <- nrow(data_domaine_c)
+
+ID_DOMAINE_FK <- c(1:nbr_rows_domaines_c)
+for(i in 1:nbr_rows_domaines_c){
+  ID_DOMAINE_FK[i] <- getID_DOMAINE(i)
+}
+
+export_domaine_c %>%
+  mutate(ID_DOMAINE = ID_DOMAINE_FK ) %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", row.names=FALSE)
+
+data_domaine_c <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", header=TRUE, sep = ",")
+
+export_domaine_c <- dplyr::select(data_domaine_c, ID_DOMAINE_C, ID_DOMAINE, NOM) %>%
+                    write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", row.names=FALSE)
+
+export_domaine_c <- read.csv("/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", header=TRUE, sep = ",")
+
+head(export_domaine_c)
+```
+
+# Génaration des données pour FESTIVAL
+## Selection de données + ajout de nouvelles colonnes
+Séparation des coordonnées en deux parties, latitudes et longitudes
+
+``` {r}
+data_festivals <- dplyr::select(festivals_limit_rows, "Nom.de.la.manifestation", "Site.web","Date.de.début","Date.de.fin","coordonnees_insee", "Complément.domaine")
+
+data_festivals %>%
+  separate("coordonnees_insee", c("LATITUDE", "LONGITUDE"), ",") %>%
+  mutate(ID_USER= 1 ) %>% #                                                                                               >>>>>>> OK
+  mutate(Date.de.début=format(as.Date(ymd(Date.de.début)+years(1)),'%d-%m-%Y') ) %>% #+ &jout de 1 ans                    >>>>>>> OK
+  mutate(Date.de.fin=format(as.Date(ymd(Date.de.fin)+years(1)),'%d-%m-%Y') ) %>% #+ &jout de 1 ans                        >>>>>>> OK
+  mutate(ID_FESTIVAL = id_festival_gen ) %>%                                                                              #>>>>>>> OK 
+  mutate(NOTE_GLOBAL= note_global_gen ) %>% #Generate a random integer between 0 and 100                                   >>>>>>> OK
+  #mutate(nbr_place_cat1 = nbr_place_cat1_gen ) %>%
+  #mutate(nbr_place_cat1_dispo = nbr_place_cat1_gen ) %>%
+  #mutate(nbr_place_cat2 = nbr_place_cat2_gen ) %>%
+  #mutate(nbr_place_cat2_dispo = nbr_place_cat2_gen ) %>%
+  #mutate(nbr_place_san_cat = nbr_place_san_cat_gen ) %>%
+  #mutate(nbr_place_san_cat_dispo = nbr_place_san_cat_gen ) %>%
+  #mutate(tarif_cat1_jour = tarif_cat1_jour_gen ) %>%
+  #mutate(tarif_cat2_jour = tarif_cat2_jour_gen ) %>%
+  #mutate(tarif_sans_cat_jour = tarif_sans_cat_jour_gen ) %>%
+  mutate(DESCRIPTION = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Nulla malesuada pellentesque elit eget gravida. Vel elit scelerisque mauris pellentesque. Non diam phasellus vestibulum lorem sed. Vulputate dignissim suspendisse in est ante. Velit egestas dui id ornare arcu odio ut. Urna nec tincidunt praesent semper. Semper risus in hendrerit gravida rutrum quisque non. Id faucibus nisl tincidunt eget nullam non. A scelerisque purus semper eget duis at. Eget mauris pharetra et ultrices neque ornare aenean euismod elementum. Etiam dignissim diam quis enim. Ridiculus mus mauris vitae ultricies leo integer malesuada. Eget arcu dictum varius duis at consectetur. Aliquam sem et tortor consequat. Vel risus commodo viverra maecenas. Nisl purus in mollis nunc sed id semper risus in. Quis varius quam quisque id diam vel. Phasellus egestas tellus rutrum tellus pellentesque eu tincidunt tortor aliquam. Purus viverra accumsan in nisl nisi scelerisque eu. Sed sed risus pretium quam vulputate. Massa vitae tortor condimentum lacinia quis vel eros donec. Tristique nulla aliquet enim tortor. Non blandit massa enim nec dui nunc mattis. Dignissim cras tincidunt lobortis feugiat. Facilisis gravida neque convallis a cras semper. Dignissim convallis aenean et tortor at risus viverra adipiscing at. Magna fringilla urna porttitor rhoncus dolor purus non. Feugiat nibh sed pulvinar proin gravida hendrerit lectus a." ) %>% #                    >>>>>> OK
+  mutate(STATUT = "Disponible" ) %>%
+  mutate(DATE_CREATION= format(as.Date(gen_date_creation),'%d-%m-%Y') ) %>%           #                                    >>>>>> OK
+  rename(
+   NOM = Nom.de.la.manifestation,
+   SITE_WEB = Site.web,
+   DATE_DEBUT = Date.de.début,
+   DATE_FIN = Date.de.fin,
+   DOMAINE_C = Complément.domaine
+   )%>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/festival.csv", row.names=FALSE)
+
+export_festival_tmp <- read.csv("/home/mehdi/other_project/front/data/CSV/export/festival.csv", header=TRUE, sep = ",")
+
+#Vérification des FK avec LOCALISATION
+export_festival <-  export_festival_tmp[ which(export_festival_tmp$LATITUDE %in% export_localisation$LATITUDE, export_festival_tmp | export_festival_tmp$LONGITUDE %in% export_localisation$LONGITUDE ) , ]
+
+head(export_festival_tmp)
+```
+
+``` {r}
+getID_DOMAINE_C <- function(x){
+  value_ID_DOMAINE <- sqldf(paste0("SELECT ID_DOMAINE_C FROM export_domaine_c INNER JOIN export_festival_tmp ON export_domaine_c.NOM = export_festival_tmp.DOMAINE_C where export_festival_tmp.DOMAINE_C = '",export_festival_tmp[x, "DOMAINE_C"], "' GROUP BY export_festival_tmp.DOMAINE_C"))
+  value_ID_DOMAINE[1, "ID_DOMAINE_C"]
+}
+
+ID_DOMAINE_C_FK <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  ID_DOMAINE_C_FK[i] <- getID_DOMAINE_C(i)
+}
+
+export_festival_tmp %>%
+  mutate(ID_DOMAINE_C = ID_DOMAINE_C_FK ) %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/festival.csv", row.names=FALSE)
+
+export_festival <- read.csv("/home/mehdi/other_project/front/data/CSV/export/festival.csv", header=TRUE, sep = ",")
+
+export_festival <- dplyr::select(export_festival, ID_FESTIVAL, LATITUDE, LONGITUDE, ID_DOMAINE_C, ID_USER, NOM, DESCRIPTION, DATE_DEBUT, DATE_FIN, SITE_WEB, NOTE_GLOBAL, DATE_CREATION, STATUT) %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/festival.csv", row.names=FALSE)
+
+export_festival <- read.csv("/home/mehdi/other_project/front/data/CSV/export/festival.csv", header=TRUE, sep = ",")
+
+head(export_festival)
+```
+
+# Génaration des données pour PHOTO FESTIVAL
+
+``` {r}
+genDataPHOTO <- function(){
+
+  ID_PHOTO <- id_festival_gen
+  ID_FESTIVAL <- id_festival_gen
+  CHEMIN <- id_festival_gen
+  COMMENTAIRE <- id_festival_gen
+  STATUT <- id_festival_gen
+
+  for(i in 1:nbr_rows){
+      CHEMIN[i] <- paste0("https://via.placeholder.com/400x600.png/6E78A6/FFFFFF/?text=",export_festival[i, "NOM"])
+      COMMENTAIRE[i] <- ""
+      STATUT[i] <- "Visible"
+  }
+  
+  photo.data <- data.frame(ID_PHOTO, ID_FESTIVAL, CHEMIN, COMMENTAIRE, STATUT)
+}
+
+write.csv(x = genDataPHOTO(),file = "/home/mehdi/other_project/front/data/CSV/export/photo.csv", row.names=FALSE)
+
+export_photo <- read.csv("/home/mehdi/other_project/front/data/CSV/export/photo.csv", header=TRUE, sep = ",")
+
+head(export_photo)
+```
+
+# Génaration des données pour SOIREE
+``` {r}
+getNumber_Day <- function(x){
+  nbr_day <- as.Date(as.character(export_festival[x, "DATE_FIN"]), format="%d-%m-%Y") - as.Date(as.character(export_festival[x, "DATE_DEBUT"]), format="%d-%m-%Y")
+  
+  #return nbr_day
+  nbr_day
+}
+
+
+getDate <- function(x,d){
+  get_date <- format(as.Date(ymd(as.Date(as.character(export_festival[x, "DATE_DEBUT"]), format="%d-%m-%Y"))+days(d) ),'%d-%m-%Y')
+  
+  get_date
+}
+
+genDataSOIREE <- function(){
+  ID_SOIREE_tmp <- 0
+  
+  for(i in 1:nbr_rows){
+    for(j in 1:getNumber_Day(i)){
+      ID_SOIREE_tmp <- ID_SOIREE_tmp + 1
+    }
+  }
+  ID_SOIREE <- c(1:ID_SOIREE_tmp)
+  ID_FESTIVAL <- c(1:ID_SOIREE_tmp)
+  DATE_SOIREE <- c(1:ID_SOIREE_tmp)
+  STATUT <- c(1:ID_SOIREE_tmp)
+  
+  ID_SOIREE_tmp <- 1
+
+  for(i in 1:nbr_rows){
+    for(j in 1:getNumber_Day(i)){
+      ID_FESTIVAL[ID_SOIREE_tmp] <- i
+      DATE_SOIREE[ID_SOIREE_tmp] <- getDate(i, (j-1))
+      STATUT[ID_SOIREE_tmp] <- "Disponible"
+      
+      ID_SOIREE_tmp <- ID_SOIREE_tmp + 1
+    }
+  }
+  
+  soiree.data <- data.frame(ID_SOIREE, ID_FESTIVAL, DATE_SOIREE, STATUT)
+}
+
+write.csv(x = genDataSOIREE(),file = "/home/mehdi/other_project/front/data/CSV/export/soiree.csv", row.names=FALSE)
+
+export_soiree <- read.csv("/home/mehdi/other_project/front/data/CSV/export/soiree.csv", header=TRUE, sep = ",")
+
+head(export_soiree)
+```
+
+# Génaration des données pour CATEGORIE_SOIREE
+```{r}
+genDataCATEGORIE_SOIREE <- function(){
+  
+  nbr_soiree_rows <- nrow(export_soiree)
+  
+  ID_CS_tmp <- 0
+  
+  for(i in 1:nbr_soiree_rows){
+    if((i %% 2) == 0) {
+      # 2 cats disponible
+      nbr_place_random <- 2
+    } else {
+      # 1 cats disponible
+      nbr_place_random <- 1
+    }
+    
+    for(j in 1:nbr_place_random){
+      ID_CS_tmp <- ID_CS_tmp + 1
+    }
+  }
+  
+  ID_CS <- c(1:ID_CS_tmp)
+  ID_SOIREE <- c(1:ID_CS_tmp)
+  NBR_PLACE <- c(1:ID_CS_tmp)
+  TARIF <- c(1:ID_CS_tmp)
+  NBR_PLACE_DISPO <- c(1:ID_CS_tmp)
+  STATUT <- c(1:ID_CS_tmp)
+  
+  ID_CS_tmp <- 1
+  sup_cat <- 1
+  
+  for(i in 1:nbr_soiree_rows){
+    if((i %% 2) == 0) {
+      # 2 cats disponible
+      nbr_place_random <- 2
+    } else {
+      # 1 cats disponible
+      nbr_place_random <- 1
+    }
+    
+    for(j in 1:nbr_place_random){
+      nbr_place <- sample(100:500, 1, replace=TRUE)
+      
+      ID_SOIREE[ID_CS_tmp] <- i
+      NBR_PLACE[ID_CS_tmp] <- nbr_place + 10 
+      TARIF[ID_CS_tmp] <- runif(1, 25.0, 100.0)/sup_cat
+      NBR_PLACE_DISPO[ID_CS_tmp] <- nbr_place
+      STATUT[ID_CS_tmp] <- "Disponible"
+      
+      sup_cat <- sup_cat*2
+      ID_CS_tmp <- ID_CS_tmp + 1
+    }
+    
+    sup_cat <- 1
+  }
+  
+  CATEGORIE_SOIREE.data <- data.frame(ID_CS, ID_SOIREE, NBR_PLACE, TARIF, NBR_PLACE_DISPO, STATUT)
+}
+
+write.csv(x = genDataCATEGORIE_SOIREE(),file = "/home/mehdi/other_project/front/data/CSV/export/categorie_soiree.csv", row.names=FALSE)
+
+export_categorie_soiree.csv <- read.csv("/home/mehdi/other_project/front/data/CSV/export/categorie_soiree.csv", header=TRUE, sep = ",")
+
+head(export_categorie_soiree.csv)
+```
+
+```{r}
+# sudo apt-get install libiodbc2-dev
+# sudo apt-get install -y unixodbc-bin
+# sudo apt-get install -y unixodbc
+# sudo apt-get install -y unixodbc-dev
+
+devtools::install_github("kcf-jackson/csv2sql")
+
+library(csv2sql)
+
+#Domaine
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/domaine.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/domaine.sqlite3", table_name = "DOMAINE")
+
+# DOMAINE_COMPLEMENTAIRE
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/domaine_c.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/domaine_c.sqlite3", table_name = "DOMAINE_COMPLEMENTAIRE")
+
+# LOCALISATION
+# csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/localisation.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/localisation.sqlite3", table_name = "LOCALISATION")
+
+# FESTIVAL
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/festival.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/festival.sqlite3", table_name = "FESTIVAL")
+
+#PHOTO FESTIVAL
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/photo_festival.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/photo_festival.sqlite3", table_name = "PHOTO_FESTIVAL")
+
+# SOIREE
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/soiree.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/soiree.sqlite3", table_name = "SOIREE")
+
+# CATEGORIE_SOIREE
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/categorie_soiree.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/categorie_soiree.sqlite3", table_name = "CATEGORIE_SOIREE")
+```

@@ -1,0 +1,11 @@
+@import "~src/vars";
+
+.page {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.spinner{
+  color: $white;
+}

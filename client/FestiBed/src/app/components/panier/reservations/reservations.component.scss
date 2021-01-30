@@ -1,0 +1,48 @@
+@import "~src/vars";
+@import "~src/style-component/card-product.compenent.scss";
+
+.alert{
+    background-color: $color-alert;
+    color: $white;
+    margin-bottom: 1rem;
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.no-product{
+    margin: 2rem 0;
+    font-size: 14px;
+}
+
+.product__item{
+    outline: none;
+    width: 80%;
+    color: $black;
+    margin: calc(1rem/4) 0;
+}
+
+.price__item{
+    margin: calc(1rem/4) 0;
+    margin-left: 0.5rem;
+}
+
+.results{
+    margin: 0 10px 10px;
+    color: grey;
+    text-align: end;
+    font-size: 12px;
+}
+
+.edit:hover{
+    margin: 0 10px;
+    background-color: $color-warn;
+}
+
+a, a:visited{
+    color: $black;
+}
+
+a:hover{
+    color: $black;
+    text-decoration:underline ;
+}

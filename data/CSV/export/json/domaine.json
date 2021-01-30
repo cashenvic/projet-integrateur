@@ -1,0 +1,61 @@
+[
+  {
+    "NOM":"Arts plastiques et visuels"
+    ,"ID_DOMAINE":1
+  },
+  {
+    "NOM":"Cinéma et audiovisuel"
+    ,"ID_DOMAINE":2
+  },
+  {
+    "NOM":"Cirque et Arts de la rue"
+    ,"ID_DOMAINE":3
+  },
+  {
+    "NOM":"Danse"
+    ,"ID_DOMAINE":4
+  },
+  {
+    "NOM":"Divers spectacle vivant"
+    ,"ID_DOMAINE":5
+  },
+  {
+    "NOM":"Divers Spectacle vivant"
+    ,"ID_DOMAINE":6
+  },
+  {
+    "NOM":"Domaines divers"
+    ,"ID_DOMAINE":7
+  },
+  {
+    "NOM":"Livre et littérature"
+    ,"ID_DOMAINE":8
+  },
+  {
+    "NOM":"Musiques actuelles"
+    ,"ID_DOMAINE":9
+  },
+  {
+    "NOM":"Musiques Actuelles"
+    ,"ID_DOMAINE":10
+  },
+  {
+    "NOM":"Musiques classiques"
+    ,"ID_DOMAINE":11
+  },
+  {
+    "NOM":"Pluridisciplinaire Musique"
+    ,"ID_DOMAINE":12
+  },
+  {
+    "NOM":"Pluridisciplinaire Spectacle vivant"
+    ,"ID_DOMAINE":13
+  },
+  {
+    "NOM":"Théâtre"
+    ,"ID_DOMAINE":14
+  },
+  {
+    "NOM":"Transdisciplinaire"
+    ,"ID_DOMAINE":15
+  }]

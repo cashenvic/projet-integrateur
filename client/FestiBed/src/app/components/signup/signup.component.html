@@ -1,0 +1,77 @@
+<div class="login-wrapper" fxLayout="row" fxLayoutAlign="center center">
+    
+    <mat-card class="box">
+        <mat-card-header>
+            <mat-card-title>Créer un compte</mat-card-title>
+        </mat-card-header>
+  
+        <mat-card-content>
+
+            <div class="error-banner" *ngIf="showError">
+                <div class="alert alert-danger" role="alert">
+                    {{formErrorText}}.
+                    <button type="button" (click)="closeAlert()" class="close" data-dismiss="alert" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <form [formGroup]="form">
+
+                <!--NOM-->
+                <mat-form-field class="example-full-width">
+                    <input type="text" autofocus formControlName="nom" id="nom" matInput name="nom" placeholder="Nom" autocomplete="off">
+                    <mat-error *ngIf="!form.controls['nom'].valid">
+                        <span>Ce champ est obligatoire.</span>
+                    </mat-error>
+                </mat-form-field>
+
+                <!--PRENOM-->
+                <mat-form-field class="example-full-width">
+                    <input type="text" autofocus matInput formControlName="prenom" id="prenom" name="prenom" placeholder="Prénom" autocomplete="off">
+                    <mat-error *ngIf="!form.controls['prenom'].valid">
+                        <span>Ce champ est obligatoire.</span>
+                    </mat-error>
+                </mat-form-field>
+
+                <!--ROLE-->
+                <mat-form-field class="example-full-width">
+                    <mat-label>Choissisez le type de compte</mat-label>
+                    <mat-select [(value)]="selected">
+                        <mat-option [value]="role" *ngFor="let role of roles">
+                            {{role}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!--MAIL-->
+                <mat-form-field class="example-full-width">
+                    <input type="text" autofocus matInput formControlName="email" id="email" name="email" placeholder="email" autocomplete="off">
+                    <mat-error *ngIf="!form.controls['email'].valid">
+                        <span>Ce champ est obligatoire.</span>
+                    </mat-error>
+                </mat-form-field>
+
+                <!--PWD-->
+                <mat-form-field class="example-full-width">
+                    <input type="password" autofocus matInput formControlName="password" id="password" name="password" placeholder="Mot de passe" autocomplete="off">
+                    <mat-error *ngIf="!form.controls['password'].valid">
+                        <span>Ce champ est obligatoire.</span>
+                    </mat-error>
+                </mat-form-field>
+
+            </form>
+
+            <button mat-button class="btn-block" [disabled]="!form.valid || !selected" (click)="inscription()">S'enregistrer</button>
+
+            <div class="create-account">
+                <span>Vous avez déjà un compte ? </span>
+                <a href="login">
+                    <span class="create-account-title">Se connecter</span>
+                </a>
+            </div>
+
+        </mat-card-content>
+    </mat-card>
+
+</div>

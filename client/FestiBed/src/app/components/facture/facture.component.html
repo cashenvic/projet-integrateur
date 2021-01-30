@@ -1,0 +1,168 @@
+<div id="content" #content>
+  <mat-card>
+    <div class="alert alert-info">
+      <strong>Votre réservation a été validée et prête</strong>
+    </div>
+    <div>
+      <br>
+      <button mat-raised-button color="primary" (click)="captureScreen()">Télécharger ma réservation</button>
+    </div>
+  </mat-card>
+</div>
+<div>
+  <mat-card>
+    <table id="contentToConvert">
+
+      <h4>Détailts billet</h4>
+      <div *ngIf="commande.listFestival">
+
+        <div *ngFor="let product of commande.listFestival" fxLayout="column" fxLayoutAlign="space-around stretch">
+
+          <!--SOIREES-->
+          <div class="main-content">
+            <div class="ticket">
+              <div class="ticket__main">
+                <div class="header">{{product.nom}}</div>
+                <div class="info passenger">
+                  <div class="info__item">Nom Prénom</div>
+                  <div class="info__detail">KHADIR Mehdi</div>
+                </div>
+                <div class="info platform"> <span>Nombre </span><span>Place</span>
+                  <div class="number">
+                    <div>{{product.nbr_places}}</div>
+                  </div>
+                </div>
+                <div class="info departure">
+                  <div class="info__item">Catégorie</div>
+                  <div class="info__detail">{{product.categorie}}</div>
+                </div>
+                <div class="info arrival">
+                  <div class="info__item">Date de Soirée</div>
+                  <div class="info__detail">{{product.date_soiree | date : 'd MMMM y'}}</div>
+                </div>
+                <div class="info date">
+                  <div class="info__item">Etat</div>
+                  <div class="info__detail">valide</div>
+                </div>
+                <div class="info time">
+                  <div class="info__item">Montont</div>
+                  <div class="info__detail">{{product.montant | number : '1.2-2' }} €</div>
+                </div>
+                <div class="fineprint">
+                  <p>Vous devez vous présenter 30 MINUTES AVANT LE début du festival. DES SNACKS SONT DISPONIBLES À L'ACHAT AUPRÈS des partenaires du Festival.</p>
+                  <p>Ce billet est non remboursable</p>
+                </div>
+                <div class="snack">
+                  <span style="color: #FFFFFF;font-size: 18px;font-weight: 700;    position: relative;top: 12px;"> OK </span>
+                </div>
+                <div class="barcode">
+                  <div class="barcode__scan"></div>
+                  <div class="barcode__id">001256733</div>
+                </div>
+              </div>
+              <div class="ticket__side">
+                <!-- <div class="logo">
+                  <p>FESTIBED</p>
+                </div>
+                <div class="info side-arrive">
+                  <div class="info__item">Date début</div>
+                  <div class="info__detail">dd/mm/2010</div>
+                </div>
+                <div class="info side-depart">
+                  <div class="info__item">Date de fin</div>
+                  <div class="info__detail">dd/mm/2010</div>
+                </div>
+                <div class="info side-date">
+                  <div class="info__item">Fait le</div>
+                  <div class="info__detail">31 janv. 2020</div>
+                </div>
+                <div class="info side-time">
+                  <div class="info__item">A</div>
+                  <div class="info__detail">11:00</div>
+                </div> -->
+                <div class="barcode">
+                  <div class="barcode__scan"></div>
+                  <div class="barcode__id">001256733</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <h4>Détailts hébergement</h4>
+      <div class="main-content">
+        <div class="ticket">
+          <div class="ticket__main">
+            <div class="header">NOm du Camping</div>
+            <div class="info passenger">
+              <div class="info__item">Nom Prénom</div>
+              <div class="info__detail">KHADIR Mehdi</div>
+            </div>
+            <div class="info platform"> <span>Nombre </span><span>Nuits</span>
+              <div class="number">
+                <div>3</div>
+              </div>
+            </div>
+            <div class="info departure">
+              <div class="info__item">Date arrivé</div>
+              <div class="info__detail">30 Janv. 2020</div>
+            </div>
+            <div class="info arrival">
+              <div class="info__item">Date départ</div>
+              <div class="info__detail">30 Janv. 2020</div>
+            </div>
+            <div class="info date">
+              <div class="info__item">Fait le</div>
+              <div class="info__detail">30 Janv. 2020</div>
+            </div>
+            <div class="info time">
+              <div class="info__item">A</div>
+              <div class="info__detail">14:00</div>
+            </div>
+            <div class="fineprint">
+              <p>Vous devez vous arriver avant 12h00 à lieu de votre hébergement. Les conditions de départ vous seront communiqués par votre hébergeur..</p>
+              <p>Ce billet est non remboursable</p>
+            </div>
+            <div class="snack">
+              <span style="color: #FFFFFF;font-size: 23px;font-weight: 700;    position: relative;top: 12px;"> OK </span>
+            </div>
+            <div class="barcode">
+              <div class="barcode__scan"></div>
+              <div class="barcode__id">001256733</div>
+            </div>
+          </div>
+          <div class="ticket__side">
+            <!-- <div class="logo">
+              <p>FESTIBED</p>
+            </div>
+            <div class="info side-arrive">
+              <div class="info__item">Date début</div>
+              <div class="info__detail">dd/mm/2010</div>
+            </div>
+            <div class="info side-depart">
+              <div class="info__item">Date de fin</div>
+              <div class="info__detail">dd/mm/2010</div>
+            </div>
+            <div class="info side-date">
+              <div class="info__item">Fait le</div>
+              <div class="info__detail">31 janv. 2020</div>
+            </div>
+            <div class="info side-time">
+              <div class="info__item">A</div>
+              <div class="info__detail">11:00</div>
+            </div> -->
+            <div class="barcode">
+              <div class="barcode__scan"></div>
+              <div class="barcode__id">001256733</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </table>
+
+  </mat-card>
+</div>

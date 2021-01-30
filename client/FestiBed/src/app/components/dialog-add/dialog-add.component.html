@@ -1,0 +1,27 @@
+<h1 mat-dialog-title>Indiquer le nombre de place réservé</h1>
+<div mat-dialog-content>
+
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <span>Nombre de place :</span>
+    <mat-form-field>
+      <input matInput type="number" name="quantity" 
+      [(ngModel)]="places_reserver" 
+      min="1" [max]="max_place">
+    </mat-form-field>
+  </div>
+  
+  <p>
+    <span>Montant : </span>
+    <span class="montant">
+      {{places_reserver * data.tarif | number : '1.2-2'}} €
+    </span>
+  </p>
+</div>
+<div mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center" >
+  <button mat-button class="cancel" (click)="onNoClick()">
+    <i class="fas fa-times"></i>Annuler
+  </button>
+  <button mat-button class="valid" [mat-dialog-close]="places_reserver" cdkFocusInitial>
+    Ajouter<i class="fas fa-shopping-basket"></i>
+  </button>
+</div>

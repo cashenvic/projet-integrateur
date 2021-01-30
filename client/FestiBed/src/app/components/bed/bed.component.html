@@ -1,0 +1,103 @@
+<div >
+
+  <!--TITLE-->
+  <h1 class="title-single"> {{hebergement.nom}}</h1>
+
+  <div class="photos">
+    <drag-scroll #nav>
+      <div drag-scroll-item class="photos__item"> 
+        <img src="https://image.freepik.com/photos-gratuite/conception-appartement-studio-moderne-chambre-espace-vie_1262-12375.jpg">
+      </div>
+     </drag-scroll>
+  </div>
+
+  <div class="drag-btn">
+    <button mat-button (click)="moveLeft()" class="prev"><i class="fas fa-chevron-left"></i></button>
+    <button mat-button (click)="moveRight()" class="next"><i class="fas fa-chevron-right"></i></button>
+  </div>
+
+  <div class="grid">
+    <div class="infos">
+      <!--INFO-->
+      <mat-card>
+        <mat-card-title>
+          <span>Informations</span>
+        </mat-card-title>
+
+        <mat-card-content>
+          <!--INFO-->
+          <div class="info">
+
+              <p class="status-label light-white">
+                <span>Adresse : {{ hebergement.adresse }} </span>
+              </p>
+
+              <p class="status-label light-white">
+                <span>Email : {{ hebergement.email }} </span>
+              </p>
+
+              <p class="status-label light-white">
+                <span>Téléphone : {{ hebergement.telephone }} </span>
+              </p>
+
+              <p class="status-label light-white">
+                <span>Type : <b>{{ hebergement.type }}</b></span>
+              </p>
+
+              <p class="status-label light-white">
+                <span>Nombre étoile : <b>{{ hebergement.nombre_etoile }} <i class="fas fa-star" ></i> </b></span>
+              </p>
+
+              <p class="status-label light-white">
+                <i>Mise en ligne le {{hebergement.date_creation | date : 'd MMMM y'}}</i>
+              </p>
+          </div>
+        </mat-card-content>
+
+      </mat-card>
+
+      <div class="map">
+        <!--MAP-->
+        <app-map [markerFest]="configMap" *ngIf="!init"></app-map>
+      </div>
+    </div>
+
+    <div class="description">
+      <div class="soiree">
+        <mat-card>
+
+          <form [formGroup]="form">
+            <!--DATAPICKER-->
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <span>Date de Réservation :</span>
+              <mat-form-field >
+                <input matInput placeholder="Date" [satDatepicker]="picker4" formControlName="dateRange" required>
+                <sat-datepicker #picker4 [rangeMode]="true" orderPeriodLabel="month">
+                </sat-datepicker>
+                <sat-datepicker-toggle matSuffix [for]="picker4"></sat-datepicker-toggle>
+              </mat-form-field>
+            </div>
+    
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <span>Nombre de personne :</span>
+              <mat-form-field>
+                <input matInput type="number" name="quantity" 
+                formControlName="personnes"
+                min="1" [max]="6">
+              </mat-form-field>
+            </div>
+  
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <span><b>Montant</b></span>
+              <span><b>{{ form.value.personnes * hebergement.tarif | number : '1.2-2'}} € </b></span>
+            </div>
+          </form>
+    
+          <button mat-button class="btn-block" (click)="addBeb()">Ajouter</button>  
+        </mat-card>
+      </div>
+     
+    </div>
+  </div>
+
+</div>

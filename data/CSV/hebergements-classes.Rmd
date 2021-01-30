@@ -1,0 +1,391 @@
+---
+title: "Panorama des hebergements"
+author: "G7 "
+#date: '`r Sys.Date()`'
+date : 13-01-2020
+output:
+  pdf_document:
+    number_sections: yes
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error= TRUE)
+```
+
+
+## Load des modules
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+if(!require("tidyverse")) install.packages("tidyverse")
+library(conflicted)
+
+library(tidyverse)
+library(lubridate) #minpulation de date
+
+###OpenStreetMap
+if(!require("units")) install.packages("units")
+if(!require("raster")) install.packages("raster")
+
+library(raster)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  fig.width = 6,
+  fig.asp = 0.618,
+  out.width = "80%",
+  fig.align = "center"
+)
+
+# including SQLite itself
+#install.packages("sqldf")
+
+# load sqldf into workspace
+library(sqldf)
+
+```
+
+## Load des données
+``` {r}
+hebergements <- read.csv("hebergements-classes.csv", header=TRUE, sep = ";")
+#hebergements_limit_rows <- dplyr::select(hebergements, hebergements$DATE.DE.PUBLICATION.DE.L.ETABLISSEMENT, hebergements$TYPOLOGIE.ETABLISSEMENT, hebergements$CLASSEMENT, hebergements$NOM.COMMERCIAL, hebergements$ADRESSE, hebergements$CODE.POSTAL, hebergements$Nom.du.département, hebergements$TELEPHONE, hebergements$COURRIEL, hebergements$SITE.INTERNET, hebergements$CAPACITE.D.ACCUEIL..PERSONNES., hebergements$NOMBRE.DE.CHAMBRES, hebergements$NOMBRE.D.EMPLACEMENTS, hebergements$NOMBRE.D.UNITES.D.HABITATION..villages.de.vacances., hebergements$NOMBRE.D.UNITES.D.HABITATION..villages.de.vacances., hebergements$coordonnees)
+
+hebergements_limit <- hebergements[-which(hebergements$coordonnees == ""),]
+
+head(hebergements_limit)
+```
+
+# TYPOLOGIE ETABLISSEMENT
+``` {r}
+TYPOLOGIE_ETABLISSEMENT <- dplyr::select(hebergements_limit, TYPOLOGIE.ETABLISSEMENT)
+
+TYPOLOGIE_ETABLISSEMENT %>%
+  group_by(TYPOLOGIE.ETABLISSEMENT) %>% 
+  slice(1) %>% 
+  head()
+
+################################################################################
+# Champs bbd : 
+# NBR_PERSONNE_CONSEILLE
+# CAPACITE
+# NBR_PLACE_ADULTE
+# NBR_PLACE_ENFANT
+# TARIF_ADULTE
+# TARIF_ENFANT  
+################################################################################
+# Pour      : CAMPING
+# Donnée!   : NOMBRE D'EMPLACEMENTS
+# Détails   : une place autorise simplement l'hébergement de 6 personnes au maximum
+# Action    : Contraite métier !!! Aucune action sur R
+################################################################################
+# Pour      : HÔTEL
+# Donnée!   : CAPACITE D'ACCUEIL (PERSONNES) +  NOMBRE DE CHAMBRES
+# Détails   : chambre simple (1 lit), chambre double (2 lits) et chambre familiale (lits adultes et enfants). Une chambre possède une capacité à la fois en adultes et en enfants. Le tarif n'est pas à la chambre mais à la personne (un tarif adulte et un tarif enfant) et dépend de chaque chambre (et non de la catégorie de la chambre).
+# Action    : Fonction pour dispatcher APACITE D'ACCUEIL (PERSONNES) par NOMBRE DE CHAMBRES disponible selon la segmentation demandé dans le Cahier de Charge !
+################################################################################
+# Pour      : PARC RÉSIDENTIEL DE LOISIRS
+# Donnée!   : NOMBRE D'EMPLACEMENTS
+# Détails   : le type de nuitée est défini par le nombre de personnes conseillé pour la résidence 
+# Action    : Contraite métier !!! Aucune action sur R
+################################################################################
+# Pour      : RÉSIDENCE DE TOURISME / APPARTEMENT
+# Donnée!   : CAPACITE D'ACCUEIL (PERSONNES) [TOTAL] + NOMBRE D'UNITES D'HABITATION  (résidences de tourisme)
+# Action    : Contraite métier !!! Aucune action sur R
+################################################################################
+# Pour      : VILLAGE DE VACANCES
+# Donnée!   : CAPACITE D'ACCUEIL (PERSONNES) [TOTAL] [chambre définie par sa capacité de place pour adultes et enfants] + NOMBRE D'UNITES D'HABITATION (villages de vacances) [un emplacement collectif en dortoir]
+# Détails : Un village de vacances dispose de deux catégories de nuitées : soit une chambre définie par sa capacité de place pour adultes et enfants, soit un emplacement collectif en dortoir. Le tarif est ici encore à la personne (adulte ou enfant). Il est spécifique à chaque chambre ou chaque dortoir. Le tarif d'une place en dortoir est unique
+################################################################################
+# Autre  : Les nuitées réservées à l'application ne sont pas disponibles toute l'année. L'hébergeur s'autorise à définir des périodes de disponibilités (non forcément contiguës dans le temps).
+
+# Sénario : Un hébergeur peut supprimer un hébergement ou modifier la disponibilité dans le temps de certains produits. Les fonctions autres fonctions d'ajout et modification sont facultatives.
+```
+# Génaration des données pour LOCALISATION
+
+```{r}
+data_localisations <- dplyr::select(hebergements_limit, coordonnees, CODE.POSTAL, Nom.du.département)
+
+data_localisations %>%
+  separate(coordonnees, c("LATITUDE", "LONGITUDE"), ",") %>%
+  rename(
+   CODE_POSTAL = CODE.POSTAL,
+   NOM_DEPARTEMENT = Nom.du.département
+   )%>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/h_localisation.csv", row.names=FALSE)
+
+export_localisation <- read.csv("/home/mehdi/other_project/front/data/CSV/export/h_localisation.csv", header=TRUE, sep = ",")
+
+export_localisation %>%
+  group_by(LATITUDE, LONGITUDE) %>% 
+  slice(1) %>% 
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/h_localisation.csv", row.names=FALSE)
+
+print(paste0("Avant vérification : ", nrow(export_localisation)))
+
+data_localisations <- read.csv("/home/mehdi/other_project/front/data/CSV/export/h_localisation.csv", header=TRUE, sep = ",")
+
+#Vérification que le PK n'existe pas !
+#Données de locatisation déjà présente
+data_localisations_festival <- read.csv("/home/mehdi/other_project/front/data/CSV/export/localisation.csv", header=TRUE, sep = ",")
+
+#all_locatlisation <- left_join(data_localisations, data_localisations_festival)
+
+all_locatlisation <- sqldf("SELECT * FROM data_localisations_festival UNION ALL SELECT * FROM data_localisations")
+
+print(paste0("Après vérification : ",nrow(all_locatlisation)))
+
+all_locatlisation %>%
+  group_by(LATITUDE, LONGITUDE) %>% 
+  slice(1) %>% 
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/all_localisation.csv", row.names=FALSE)
+
+head(all_locatlisation)
+```
+
+# Création des HEBERGEMENT
+```{r}
+data_hebergements <- dplyr::select(hebergements_limit, DATE.DE.PUBLICATION.DE.L.ETABLISSEMENT, TYPOLOGIE.ETABLISSEMENT, CLASSEMENT, NOM.COMMERCIAL, ADRESSE, TELEPHONE, COURRIEL, SITE.INTERNET, CAPACITE.D.ACCUEIL..PERSONNES., NOMBRE.DE.CHAMBRES, NOMBRE.D.EMPLACEMENTS, NOMBRE.D.UNITES.D.HABITATION...résidences.de.tourisme., NOMBRE.D.UNITES.D.HABITATION..villages.de.vacances., NOMBRE.DE.LOGEMENTS, coordonnees)
+
+nbr_rows <- nrow(data_hebergements)
+id_hebergement_gen <- c(1:nbr_rows)
+
+for(i in 1:nbr_rows){
+  id_hebergement_gen[i] <- i
+}
+id_hebergement_gen %>% head()
+
+note_global_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  note_global_gen[i] <- sample(1:100, 1, replace=TRUE)
+}
+note_global_gen %>% head()
+
+data_hebergements %>%
+  mutate(DATE.DE.PUBLICATION.DE.L.ETABLISSEMENT = as.Date(DATE.DE.PUBLICATION.DE.L.ETABLISSEMENT,format="%d/%b/%Y") )
+
+data_hebergements %>%
+  separate(coordonnees, c("LATITUDE", "LONGITUDE"), ",") %>%
+  mutate(ID_USER = 2 ) %>% 
+  mutate(ID_HEBERGEMENT = id_hebergement_gen ) %>%
+  mutate(NOTE_GLOBAL= note_global_gen ) %>%
+  mutate(STATUT = "Actif" ) %>%
+  mutate(CLASSEMENT = as.numeric(as.character( str_remove_all(CLASSEMENT, "[étoiles]") )) ) %>%
+  rename(
+   NOM = NOM.COMMERCIAL,
+   ADRESSE = ADRESSE,
+   EMAIL = COURRIEL,
+   SITE_WEB = SITE.INTERNET,
+   TELEPHONE = TELEPHONE,
+   DATE_CREATION = DATE.DE.PUBLICATION.DE.L.ETABLISSEMENT,
+   NOMBRE_ETOILE = CLASSEMENT,
+   TYPE = TYPOLOGIE.ETABLISSEMENT
+  ) %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/hebergement.csv", row.names=FALSE)
+  
+data_hebergements_tmp_logement <- read.csv("/home/mehdi/other_project/front/data/CSV/export/hebergement.csv", header=TRUE, sep = ",")
+
+#Vérification des FK avec LOCALISATION
+export_hebergement <-  data_hebergements_tmp_logement[ which(data_hebergements_tmp_logement$LATITUDE %in% all_locatlisation$LATITUDE, data_hebergements_tmp_logement | data_hebergements_tmp_logement$LONGITUDE %in% all_locatlisation$LONGITUDE ) , ]
+
+data_hebergements_tmp <- dplyr::select(export_hebergement, ID_HEBERGEMENT, LATITUDE, LONGITUDE, ID_USER, TYPE, NOMBRE_ETOILE, NOM, ADRESSE, EMAIL, SITE_WEB, TELEPHONE, NOTE_GLOBAL, DATE_CREATION, STATUT) %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/hebergement.csv", row.names=FALSE)
+
+data_hebergements <- read.csv("/home/mehdi/other_project/front/data/CSV/export/hebergement.csv", header=TRUE, sep = ",")
+
+head(data_hebergements)
+```
+
+# Génaration des données pour PHOTO_HEBERGEMENT°
+
+``` {r}
+genDataPHOTO <- function(){
+
+  ID_PHOTO <- id_hebergement_gen
+  ID_HEBERGEMENT <- id_hebergement_gen
+  CHEMIN <- id_hebergement_gen
+  COMMENTAIRE <- id_hebergement_gen
+  STATUT <- id_hebergement_gen
+
+  for(i in 1:nbr_rows){
+      CHEMIN[i] <- paste0("https://via.placeholder.com/600x600.png/ce0f3d/FFFFFF/?text=",data_hebergements_tmp_logement[i, "NOM"])
+      COMMENTAIRE[i] <- ""
+      STATUT[i] <- "Actif"
+  }
+  
+  photo.data <- data.frame(ID_PHOTO, ID_HEBERGEMENT, CHEMIN, COMMENTAIRE, STATUT)
+}
+
+write.csv(x = genDataPHOTO(),file = "/home/mehdi/other_project/front/data/CSV/export/h_photo.csv", row.names=FALSE)
+
+export_photo <- read.csv("/home/mehdi/other_project/front/data/CSV/export/h_photo.csv", header=TRUE, sep = ",")
+
+head(export_photo)
+```
+# Génaration des données pour LOGEMENT - uniquement les CAMPING
+
+```{r}
+LOGEMENT_CAMPING <- export_hebergement
+
+CAPACITE_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  CAPACITE_gen[i] <- sample(50:300, 1, replace=TRUE)
+}
+CAPACITE_gen %>% head()
+
+CAPACITE_gen <- c(1:nbr_rows)
+for(i in 1:nbr_rows){
+  CAPACITE_gen[i] <- runif(1, 20.0, 100.0)
+}
+CAPACITE_gen %>% head()
+
+
+genDataLOGEMENT <- function(){
+ 
+  ID_LOGEMENT <- c(1:nbr_rows)
+  ID_HEBERGEMENT <- c(1:nbr_rows)
+  TYPE <- c(1:nbr_rows)
+  STATUT <- c(1:nbr_rows)
+  DATE_CREATION <- c(1:nbr_rows)
+  TARIF <- CAPACITE_gen
+  NBR_PERSONNE_CONSEILLE <- c(1:nbr_rows)
+  CAPACITE <- CAPACITE_gen
+  NBR_PLACE_ADULTE <- c(1:nbr_rows)
+  NBR_PLACE_ENFANT <- c(1:nbr_rows)
+  TARIF_ADULTE <- c(1:nbr_rows)
+  TARIF_ENFANT <- c(1:nbr_rows)
+  
+  for(i in 1:nbr_rows){
+    STATUT <- "Actif"
+    TYPE <- "CAMPING"
+    DATE_CREATION <- export_hebergement[i, "DATE_CREATION"]
+    NBR_PERSONNE_CONSEILLE <- 6
+    NBR_PLACE_ADULTE <-0
+    NBR_PLACE_ENFANT <- 0
+    TARIF_ADULTE <- 0
+    TARIF_ENFANT <- 0
+  }
+  
+  soiree.data <- data.frame(ID_LOGEMENT, ID_HEBERGEMENT, TYPE, STATUT, DATE_CREATION, TARIF, NBR_PERSONNE_CONSEILLE, CAPACITE, NBR_PLACE_ADULTE, NBR_PLACE_ENFANT, TARIF_ADULTE, TARIF_ENFANT)
+}
+
+write.csv(x = genDataLOGEMENT(),file = "/home/mehdi/other_project/front/data/CSV/export/logement.csv", row.names=FALSE)
+
+export_logement <- read.csv("/home/mehdi/other_project/front/data/CSV/export/logement.csv", header=TRUE, sep = ",")
+
+export_logement_tmp <- sqldf("SELECT export_logement.ID_LOGEMENT AS ID_LOGEMENT, export_logement.ID_HEBERGEMENT, export_logement.STATUT, export_logement.DATE_CREATION, export_logement.TARIF, export_logement.NBR_PERSONNE_CONSEILLE, export_logement.CAPACITE, export_logement.NBR_PLACE_ADULTE, export_logement.NBR_PLACE_ENFANT, export_logement.TARIF_ADULTE, export_logement.TARIF_ENFANT  FROM export_logement INNER JOIN export_hebergement ON (export_hebergement.ID_HEBERGEMENT = export_logement.ID_HEBERGEMENT) WHERE export_hebergement.TYPE = 'CAMPING'") %>%
+  write.csv(.,file = "/home/mehdi/other_project/front/data/CSV/export/logement.csv", row.names=FALSE)
+
+export_logement <- read.csv("/home/mehdi/other_project/front/data/CSV/export/logement.csv", header=TRUE, sep = ",")
+
+head(export_logement)
+```
+
+# Génaration des données pour PHOTO_LOGEMENT
+
+``` {r}
+nbr_rows_legement <- nrow(export_logement)
+
+genDataPHOTOLogement <- function(){
+
+  ID_PHOTO <- c(1:nbr_rows_legement)
+  ID_LOGEMENT <- c(1:nbr_rows_legement)
+  CHEMIN <- c(1:nbr_rows_legement)
+  COMMENTAIRE <- c(1:nbr_rows_legement)
+  STATUT <- c(1:nbr_rows_legement)
+
+  for(i in 1:nbr_rows_legement){
+      ID_LOGEMENT[i] <- export_logement[i, "ID_LOGEMENT"]
+      CHEMIN[i] <- paste0("https://via.placeholder.com/600x600.png/633a82/FFFFFF/?text=",data_hebergements_tmp_logement[i, "NOM"])
+      COMMENTAIRE[i] <- ""
+      STATUT[i] <- "Actif"
+  }
+  
+  photo.data <- data.frame(ID_PHOTO, ID_LOGEMENT, CHEMIN, COMMENTAIRE, STATUT)
+}
+
+write.csv(x = genDataPHOTOLogement(),file = "/home/mehdi/other_project/front/data/CSV/export/h_photo_legement.csv", row.names=FALSE)
+
+export_photo_logement <- read.csv("/home/mehdi/other_project/front/data/CSV/export/h_photo_legement.csv", header=TRUE, sep = ",")
+
+head(export_photo_logement)
+```
+
+# Génaration des données pour DATE_INDISPO
+Pour les 10 premiers jours à partir du 28/01/2020 bloquer pour chaque logement une date aléatoirement de 2 jours
+
+``` {r}
+NBR_JOURS_PLAGE <- 10
+# [1] "2020-01-28" "2020-01-29" "2020-01-30" "2020-01-31" "2020-02-01" "2020-02-02" "2020-02-03" "2020-02-04" "2020-02-05" "2020-02-06"
+gen_date_creation <- seq(as.Date("28/01/2020",'%d/%m/%Y'), by = "day", length.out = NBR_JOURS_PLAGE)
+
+getdateRandom <- function(){
+  date <- gen_date_creation[sample(1:10, 1, replace=TRUE)]
+  
+  date_choice <- format(as.Date(ymd(date)),'%d/%m/%Y')
+  
+}
+
+addDaysToDate <- function(d, x){
+  
+  date_choice <- format(as.Date(ymd(as.Date(as.character(d), format="%d/%m/%Y"))+days(x) ),'%d/%m/%Y')
+  
+  date_choice
+  
+}
+
+genDATE_INDISPO <- function(){
+
+  ID_LOGEMENT <- c(1:nbr_rows_legement)
+  DATE_DEBUT <- c(1:nbr_rows_legement)
+  DATE_FIN <- c(1:nbr_rows_legement)
+  
+  for(i in 1:nbr_rows_legement){
+      date_debut_random <- getdateRandom()
+      date_fin_random <- addDaysToDate(date_debut_random, 2)
+
+      ID_LOGEMENT[i] <- export_logement[i, "ID_LOGEMENT"]
+      DATE_DEBUT[i] <- date_debut_random
+      DATE_FIN[i] <- date_fin_random
+  }
+  
+  DATE_INDISPO.data <- data.frame(ID_LOGEMENT, DATE_DEBUT, DATE_FIN)
+}
+
+write.csv(x = genDATE_INDISPO(),file = "/home/mehdi/other_project/front/data/CSV/export/h_date_indispo.csv", row.names=FALSE)
+
+export_date_indispo <- read.csv("/home/mehdi/other_project/front/data/CSV/export/h_date_indispo.csv", header=TRUE, sep = ",")
+
+head(export_date_indispo)
+```
+
+# Export des donées en SQL
+```{r}
+
+# sudo apt-get install libiodbc2-dev
+# sudo apt-get install -y unixodbc-bin
+# sudo apt-get install -y unixodbc
+# sudo apt-get install -y unixodbc-dev
+
+devtools::install_github("kcf-jackson/csv2sql")
+
+library(csv2sql)
+
+
+# TOUTE les LOCALISATIONS
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/all_localisation.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/all_localisation.sqlite3", table_name = "LOCALISATION")
+
+# TOUTE les HEBERGEMENT
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/hebergement.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/hebergement.sqlite3", table_name = "HEBERGEMENT")
+
+# TOUTE les PHOTO_HEBERGEMENT
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/h_photo.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/h_photo.sqlite3", table_name = "PHOTO_HEBERGEMENT")
+
+# TOUTE les LOGEMENT
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/logement.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/logement.sqlite3", table_name = "LOGEMENT")
+
+# TOUTE les PHOTO_LOGEMENT
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/h_photo_legement.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/h_photo_legement.sqlite3", table_name = "PHOTO_LOGEMENT")
+
+# TOUTE les DATE_INDISPO
+csv_to_sqlite(csv_name = "/home/mehdi/other_project/front/data/CSV/export/h_date_indispo.csv", db_name = "/home/mehdi/other_project/front/data/CSV/export/sqlite3/h_date_indispo.sqlite3", table_name = "DATE_INDISPO")
+```

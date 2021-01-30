@@ -1,0 +1,36 @@
+@import "~src/vars";
+
+.montant{
+    float: right;
+    font-weight: bold;
+    color: $black;
+}
+
+span{
+    color: #3c3c3c;
+}
+
+.fas.fa-times:before{
+    padding-right: 5px;
+}
+
+.fas.fa-shopping-basket:before{
+    padding-left: 5px;
+}
+
+button.valid{
+    background-color: $primary;
+    color:$white;
+}
+
+button.cancel{
+    background-color: $grey;
+    color:$white;
+}
+button{
+    width: 40%;
+}
+
+.mat-dialog-content{
+    margin-bottom: 2rem;
+}

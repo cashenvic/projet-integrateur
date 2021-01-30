@@ -1,0 +1,21 @@
+<div>
+  <google-map *ngIf="markerFest"
+    height="500px"
+    width="100%"
+    [zoom]="zoom"
+    [center]="center"
+    [options]="options"
+  >
+    <map-marker
+      [position]="markerFest?.position"
+      [label]="markerFest?.label"
+      [title]="markerFest?.title"
+      [options]="markerFest?.options"
+    >
+    </map-marker>
+  </google-map>
+
+  <button (click)="zoomIn()">Zoom plus</button>
+  <button (click)="zoomOut()">Zoom moins</button>
+
+</div>

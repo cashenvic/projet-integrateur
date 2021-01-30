@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <jdbc>
+        <serveur>someserver.net</serveur>
+        <port>1521</port>
+        <db>xe</db>
+        <username>someusrname</username>
+        <password>somepwd</password>
+    </jdbc>
+</config>

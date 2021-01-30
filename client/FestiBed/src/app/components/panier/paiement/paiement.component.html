@@ -1,0 +1,68 @@
+<div class="checkout-info payment">
+  <header>
+    <span class="checkout-info__main-title">Paiement</span>
+  </header>
+  <div class="card-wrapper"></div>
+
+  <div class="form-container">
+    <form card 
+    container=".card-wrapper"
+    card-width="400" class="slds-form slds-form_compound" 
+    [messages]="messages"
+    [placeholders]="placeholders"
+    [masks]="masks"
+    formatting="false"
+    debug="true" [formGroup]="formPaiement"
+    >
+      <fieldset class="slds-form-element">
+        <div class="slds-form-element__group">
+
+          <!--NUMERO-->
+          <div class="slds-form-element__row">
+            <div class="slds-form-element">
+              <input formControlName="numero" card-number="" class="slds-input" name="number" placeholder="Numéro de la carte" type="text" required>
+            </div>
+          </div>
+
+          <!--NOM/PRENOM-->
+          <div class="slds-form-element__row">
+            <div class=" slds-size_1-of-2">
+              <div class="slds-form-element">
+                <input formControlName="nom" card-name="" class="slds-input row1" name="first-name" placeholder="Nom" type="text" required>
+              </div>
+            </div>
+
+            <div class=" slds-size_1-of-2 ">
+              <div class="slds-form-element ">
+                <input formControlName="prenom" card-name="" class="slds-input row2" name="last-name" placeholder="Prénom" type="text" required>
+              </div>
+            </div>
+          </div>
+
+          <!--EXPIRATION DATE/CVC-->
+          <div class="slds-form-element__row">
+            <div class=" slds-size_1-of-2">
+              <div class="slds-form-element">
+                <input formControlName="expiry" card-expiry="" class="slds-input row1" name="expiry" placeholder="MM/YY" type="text">
+              </div>
+            </div>
+            <div class=" slds-size_1-of-2">
+              <div class="slds-form-element">
+                <input formControlName="cvc" card-cvc="" class="slds-input row2" name="cvc" placeholder="CVC" type="text" pattern='[0-9]{3}'>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </fieldset>
+    </form>
+
+    <div class="stepper-submit" fxLayoutAlign="space-around center" fxLayout="row" fxLayoutGap="20px">
+      <button mat-button *ngIf="!isStateMobile" class="btn btn--valider" (click)="previousStepper()">PREC.</button>
+      <button mat-button class="btn btn--valider" (click)="next()" [disabled]="!formPaiement.valid">FINALISER</button>
+    </div>
+
+  </div>
+
+</div>
+

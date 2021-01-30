@@ -1,0 +1,26 @@
+@import "~src/vars";
+
+.home{
+  h2{
+      text-align: center;
+  }
+}
+
+.mat-grid-tile {
+  background-size: cover;
+}
+
+.tileText {
+  color: white;
+  background: rgba(180,180,180,0.6);
+  padding: 10%;
+}
+
+.product-select{
+  padding-left: 8px;
+}
+
+.color-purple{
+  background-color: $dark-color;
+  font-weight: bold;
+}
