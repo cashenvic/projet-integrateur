@@ -1,0 +1,576 @@
+{
+	"info": {
+		"_postman_id": "0af7cf0e-7d10-4d4c-8a58-1c3682323fdb",
+		"name": "festibed-jetty",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:8090/api/festival/search?date_debut=24/01/2020&date_fin=27/08/2020&id_domaine=2&longitude=5.72&latitude=45.18",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/festival/search?date_debut=24/01/2020&date_fin=27/12/2020&id_domaine=14&longitude=0.711825549847&latitude=45.1918704873&limit=5&offset=0",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"festival",
+						"search"
+					],
+					"query": [
+						{
+							"key": "date_debut",
+							"value": "24/01/2020"
+						},
+						{
+							"key": "date_fin",
+							"value": "27/12/2020"
+						},
+						{
+							"key": "id_domaine",
+							"value": "14"
+						},
+						{
+							"key": "longitude",
+							"value": "0.711825549847"
+						},
+						{
+							"key": "latitude",
+							"value": "45.1918704873"
+						},
+						{
+							"key": "limit",
+							"value": "5"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/festival?limit&offset",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/festival?limit=10&offset=0",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"festival"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/festival?limit&offset&id=5",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/festival?limit=10&offset=0&id=5",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"festival"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "id",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/festival/reserver",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "id_panier",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "id_cs",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "nbr_places",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "montant",
+							"value": "2000000",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8090/api/festival/reserver",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"festival",
+						"reserver"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/panier?id_user=3&id_panier=1",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/panier?id_user=3&id_panier=1",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"panier"
+					],
+					"query": [
+						{
+							"key": "id_user",
+							"value": "3"
+						},
+						{
+							"key": "id_panier",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "nom",
+							"value": "essai",
+							"type": "text"
+						},
+						{
+							"key": "prenom",
+							"value": "1er",
+							"type": "text"
+						},
+						{
+							"key": "mail",
+							"value": "essai@mail.me",
+							"type": "text"
+						},
+						{
+							"key": "token_firebase",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9temp",
+							"type": "text"
+						},
+						{
+							"key": "token_session",
+							"value": "session",
+							"type": "text"
+						},
+						{
+							"key": "type",
+							"value": "Client",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8090/api/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/festival/soiree?id_festival=14",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/festival/soiree?id_festival=14",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"festival",
+						"soiree"
+					],
+					"query": [
+						{
+							"key": "id_festival",
+							"value": "14"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/festival/soiree/categorie?id_soiree=104",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/festival/soiree/categorie?id_soiree=104",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"festival",
+						"soiree",
+						"categorie"
+					],
+					"query": [
+						{
+							"key": "id_soiree",
+							"value": "104"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Hergement by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/hebergement/camping?limit=10&offset=0&id=167",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"hebergement",
+						"camping"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "id",
+							"value": "167"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/hebergement?limit=10&offset=0&id=16",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/hebergement?limit=10&offset=0",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"hebergement"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "id",
+							"value": "16",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/panier/validation",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "firebase_token",
+							"value": "new callable guest firebase",
+							"type": "text"
+						},
+						{
+							"key": "session_token",
+							"value": "callable guest token",
+							"type": "text"
+						},
+						{
+							"key": "prenom",
+							"value": "pren",
+							"type": "text"
+						},
+						{
+							"key": "nom",
+							"value": "nom",
+							"type": "text"
+						},
+						{
+							"key": "mail",
+							"value": "guest@mail.me",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8090/api/panier/validation",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"panier",
+						"validation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reserver hebergement",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "/api/hebergement/reserver?dateArrivee=2020-01-25&dateDepart=2020-02-25&nbrEnfant=2&nbrAdulte=2&montant=256&tokenSession=vwxvwx&logementid=9",
+					"path": [
+						"api",
+						"hebergement",
+						"reserver"
+					],
+					"query": [
+						{
+							"key": "dateArrivee",
+							"value": "2020-01-25"
+						},
+						{
+							"key": "dateDepart",
+							"value": "2020-02-25"
+						},
+						{
+							"key": "nbrEnfant",
+							"value": "2"
+						},
+						{
+							"key": "nbrAdulte",
+							"value": "2"
+						},
+						{
+							"key": "montant",
+							"value": "256"
+						},
+						{
+							"key": "tokenSession",
+							"value": "vwxvwx"
+						},
+						{
+							"key": "logementid",
+							"value": "9"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8090/api/hebergement/search?dateArrivee=29/04/2020&dateDepart=29/05/2020&type=CAMPING&nomDepartement=AIN&limit=10&offset=0",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/api/hebergement/search?dateArrivee=29/04/2020&dateDepart=29/05/2020&type=CAMPING&nomDepartement=AIN&limit=10&offset=0",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"api",
+						"hebergement",
+						"search"
+					],
+					"query": [
+						{
+							"key": "dateArrivee",
+							"value": "29/04/2020"
+						},
+						{
+							"key": "dateDepart",
+							"value": "29/05/2020"
+						},
+						{
+							"key": "type",
+							"value": "CAMPING"
+						},
+						{
+							"key": "nomDepartement",
+							"value": "AIN"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "offset",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:9090/api/panier/annuler",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "session_token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE1ODAzMjI4NjZ9.AxcgujcKfFED7jqhybKmdmWudfN76hl3sAs0Wm5H1NQ",
+							"type": "text"
+						},
+						{
+							"key": "id_panier",
+							"value": "68",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:9090/api/panier/annuler",
+					"host": [
+						"localhost"
+					],
+					"port": "9090",
+					"path": [
+						"api",
+						"panier",
+						"annuler"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
